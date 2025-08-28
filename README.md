@@ -69,7 +69,7 @@ Penalties = [ [p11, p12, p13],
               [p21, p22, p23],
               [p31, p32, p33],
               [p41, p42, p43],
-              [p51, p52, p53] ]
+              [p51, p52, p53] ]git pul
 ```
 
 ### 2.3 Pesos penalizados y normalización
