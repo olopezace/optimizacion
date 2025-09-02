@@ -4,8 +4,10 @@ Created on Thu Feb 14 13:26:19 2019
 
 @author: GabrielAsus
 """
-## seria bueno explorar el codigo en un Notebook
-
+## Brayhan: seria bueno explorar el codigo en un Notebook
+## Brayhan: dicho notebook me gustaria que tuviese la parte teorica de la eolvuión difrenecias 
+## Brayhan: que hacer una exploración de los parametros F y C
+## Brayhan: y que se viese como afecta a la convergencia
 
 import random
 import sys
@@ -28,7 +30,7 @@ class particleDE(object):
 
         self.value=sys.float_info.max
         
-        
+# Brayhan: aclarar un poco cada que es cada cosa del código, para facilitar su edición y entendimiento         
 class algorithmDE(object):
     def __init__(self,dimention,populationSize,lower,upper,function,maxIter,breakCriteria=None,F=0.7,C=0.5,seed=None):
         self.dimention=dimention
