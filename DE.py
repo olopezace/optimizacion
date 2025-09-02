@@ -4,6 +4,8 @@ Created on Thu Feb 14 13:26:19 2019
 
 @author: GabrielAsus
 """
+## seria bueno explorar el codigo en un Notebook
+
 
 import random
 import sys
