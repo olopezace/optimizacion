@@ -1,0 +1,22 @@
+##Descargar WSL 
+
+wsl --install
+
+## Instalar miniconda con lo siguiente desde la temrinal de wls
+
+# descarga e instala Miniconda (instalación silenciosa)
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
+export PATH="$HOME/miniconda/bin:$PATH"
+conda init bash
+source ~/.bashrc
+
+## Instalar Meep (con mpi)
+
+conda create -n pmp -c conda-forge pymeep=*=mpi_mpich_*
+
+## activar y desactivar entorno 
+
+conda activate pmp
+conda deactivate pmp
+
