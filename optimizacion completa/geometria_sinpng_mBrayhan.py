@@ -266,8 +266,8 @@ def ejecutar_simulacion(params):
     S11 = 0 #Asumiendo que no hay reflexión en el puerto 1 
 
     # Magnitud en dB
-    S21_dB = 10*np.log10(abs(S21))
-    S31_dB = 10*np.log10(abs(S31))
+    S21_dB = 10*np.log10(S21)
+    S31_dB = 10*np.log10(S31)
     #S11_dB = 10*np.log10(np.abs(S11))
 
     # desfase en grados
