@@ -11,6 +11,18 @@ from meep.materials import Cu
 def ejecutar_simulacion(params):
     a, b, d, h, c = params
 
+    n = 8  # número de brazos del híbrido en H
+    L = 10.0  # longitud total del híbrido en H
+   
+
+
+    # Conversión a unidades internas de Meep (1 unit = 1 mm)
+    um = 1.0
+    cell_x = L+1#d+b+3 * um
+    cell_y = 5 * um
+    cell_z = 5 #a+2 * um
+    resolution = 50 # pts/mm Resoluciones bajas dan errores de INf o Nan en los ca,pos al pareceser necesita una alta densidad ed puntos por milimetro
+
     # Banda de la fuente 
     # pueden ser Banda 2: 67 - 90 Ghz, Banda3: 84 -116 GHz, Banda 2+3: 67-116
     # dejando c=1 y unidades milimetricas como unidad principal es decir j=1 es 1mm
@@ -24,21 +36,7 @@ def ejecutar_simulacion(params):
     fmaxima = fmaxima/ 300 # en milimetros
 
     fcentral  = (fminima + fmaxima)/2
-    df = np.abs(fminima - fmaxima)
-
-    n = 8  # número de brazos del híbrido en H
-    L = (n-1)*(c+h) + h # longitud total del híbrido en H
-    Nlamda = int(round(L*fminima) + 1)
-    ClclosN = 15
-
-    # Conversión a unidades internas de Meep (1 unit = 1 mm)
-    
-    cell_x = (Nlamda)*1/fminima + 1.5#d+b+3 * um
-    cell_y = 2*b + d + 1.5 
-    cell_z = a +1.5 #a+2 * um
-    resolution = 40 # pts/mm Resoluciones bajas dan errores de INf o Nan en los ca,pos al pareceser necesita una alta densidad ed puntos por milimetro
-
- 
+    df = (fminima - fmaxima)
 
     nfreq = 100
     # Fuente ubicada en uno de los extremos de la región 
@@ -46,7 +44,7 @@ def ejecutar_simulacion(params):
 
     sources = [
         mp.Source(
-            mp.ContinuousSource(frequency=fcentral, fwidth = df), component=mp. Hz,size=(0, b,a) ,center=mp.Vector3(-Nlamda/(2*fminima),(b+d)/2,  0),
+            mp.ContinuousSource(frequency=fcentral, fwidth = df), component=mp. Hz,size=(0, b,a) ,center=mp.Vector3(-L/2,(b+d)/2,  0),
         )
     ]
 
@@ -54,10 +52,11 @@ def ejecutar_simulacion(params):
 
     # lista de posiciones o regiones donde pones monitores
     regions = [
-        mp.FluxRegion(center=mp.Vector3(  -Nlamda/(2*fminima) +0.1, (b+d)/2, 0), size=mp.Vector3 (0, b, a)), # Monitor de la fuente     
-        mp.FluxRegion(center=mp.Vector3(  Nlamda/(2*fminima), (b+d)/2, 0), size=mp.Vector3 (0, b, a)), # puerto S2
-        mp.FluxRegion(center=mp.Vector3(  Nlamda/(2*fminima), -(b+d)/2, 0), size=mp.Vector3 (0, b, a)), # puerto S3
+        mp.FluxRegion(center=mp.Vector3(  L/2, (b+d)/2, 0), size=mp.Vector3 (0, b, a)),
+        mp.FluxRegion(center=mp.Vector3(  L/2, -(b+d)/2, 0), size=mp.Vector3 (0, b, a)),
+        mp.FluxRegion(center=mp.Vector3(  -L/2+0.5, (b+d)/2, 0), size=mp.Vector3 (0, b, a)),
     ]
+    k_point = mp.Vector3( fcentral, 0 , 0) # numero de onda en una onda plana, se distribuye en el eje X
 
     def geometria(a,b,c,L,d,h,n):
         L = 10.0
@@ -73,13 +72,13 @@ def ejecutar_simulacion(params):
                 return
             
             geometry = [
-                mp.Block(size = mp.Vector3( Nlamda/(fminima)+1,cell_y,cell_z), # Cubo de Metal al rededor del hibrido 
+                mp.Block(size = mp.Vector3(cell_x,cell_y,cell_z), # Cubo de Metal al rededor del hibrido 
                             center = mp.Vector3(0,0,0),
                             material = mp.metal),
-                mp.Block(size=mp.Vector3( Nlamda/(fminima), b, a), # Conductos principales
+                mp.Block(size=mp.Vector3( cell_x, b, a), # Conductos principales
                             center=mp.Vector3( 0, -(b+d)/2, 0), 
                             material=mp.air),
-                mp.Block(size=mp.Vector3( Nlamda/(fminima), b,  a),
+                mp.Block(size=mp.Vector3(cell_x, b,  a),
                             center=mp.Vector3(0, (b+d)/2, 0),
                             material=mp.air)] + [ 
                 mp.Block(size=mp.Vector3(h, d, a), 
@@ -129,19 +128,17 @@ def ejecutar_simulacion(params):
     #SIMULACION CON GEOMETRIA
 
     geometry = geometria(a,b,c,L,d,h,n) 
-    
-    
+    L = 10.0
+    n = 8
     sim = mp.Simulation(
         cell_size=mp.Vector3(cell_x, cell_y, cell_z),
         geometry=geometry,
         boundary_layers=[mp.PML(0.5)],
         sources=sources,
         resolution=resolution,
+        k_point=k_point,
         #symmetries=symmetries
     )
-
-    """ Función para dibujar un bloque 3D """
-    """ 
     def draw_block(ax, center, size, color='gray', alpha=0.5):
         cx, cy, cz = center.x, center.y, center.z
         sx, sy, sz = size.x/2, size.y/2, size.z/2
@@ -169,7 +166,7 @@ def ejecutar_simulacion(params):
         ]
         
         ax.add_collection3d(Poly3DCollection(faces, facecolors=color, linewidths=0.5, edgecolors='k', alpha=alpha))
-    """
+
     # ————————————————————————————————
     # Visualización 3D de la geometría
     '''
@@ -218,51 +215,77 @@ def ejecutar_simulacion(params):
     flux_monitors = []
     for reg in regions:
         flux_monitors.append( sim.add_flux(fcentral, df, nfreq, reg) )
-    
+        
+    # Monitores de campos, lo uso para la fase entre 
 
+    frecuencias = np.linspace(fminima, fmaxima, nfreq)
 
+    mon1 = sim.add_dft_fields([mp.Bz, mp.Ey], frecuencias,
+                            where=mp.Volume(center=mp.Vector3( L/2-0.5, (b+d)/2,0),
+                                            size=mp.Vector3(0,0,0)))
+    mon2 = sim.add_dft_fields([mp.Bz, mp.Ey], frecuencias,
+                            where=mp.Volume(center=mp.Vector3( L/2-0.5, -(b+d)/2,0),
+                                            size=mp.Vector3(0,0,0)))
 
     # ahora ejecutamos la simulación (mantén tu sim.run original)
-    global fluxtime
-    fluxtime = []
-
-    def print_flux(sim) :
-        fluxtime.append([ mp.get_fluxes(fm) for fm in flux_monitors ])
-
-    sim.run(mp.at_every(1/fminima, print_flux),                 # cada 50 unidades de tiempo
-            until=15*1/fminima)
+    sim.run(until =14)
 
 
 
-    plt.figure(figsize=(10,10))
-    sim.plot2D(output_plane=mp.Volume(center=mp.Vector3(), size=mp.Vector3(cell_x, cell_y, 0)),fields=mp.Bz) # cambiar entre Ey y Bz para ver lso diferentes campos 
+    fig = plt.figure(figsize=(10,10))
+    sim.plot2D(output_plane=mp.Volume(center=mp.Vector3(), size=mp.Vector3(cell_x, cell_y, 0)),fields=mp.Ey) # cambiar entre Ey y Bz para ver lso diferentes campos 
     plt.title("Vista 2D del campo Elcectrico en su componente Ey")
     plt.savefig("vista2Dcampoelectrico.png", dpi=200)
     plt.close()
 
+
+
+
     # ANÁLISIS DE LA DIFERENCIA DE FASE ENTRE LOS PUERTOS 2 Y 3
 
+    Ey1 = np.array([sim.get_dft_array(mon1, mp.Ey, i) for i in range(nfreq)])
+    Ey2 = np.array([sim.get_dft_array(mon2, mp.Ey, i) for i in range(nfreq)])
+    Bz1 = np.array([sim.get_dft_array(mon1, mp.Bz, i) for i in range(nfreq)])
+    Bz2 = np.array([sim.get_dft_array(mon2, mp.Bz, i) for i in range(nfreq)])
+    phaseElect = np.angle(Ey1/Ey2, deg=True) # datos a usar para el análisis de fase
+    phaseMag = np.angle(Bz1/Bz2, deg=True)
+    meanfase = round(np.mean(phaseElect),0) 
+
+    # Grafico de Fase 
+    plt.figure(figsize=(8,6))
+    plt.plot(frecuencias*300,phaseElect, label = "Fase relativa del campo eléctrico")
+    #plt.plot(frecuencias*300,Ey1, label = "Ey en puerto 2")
+    #plt.plot(frecuencias*300,Ey2, label = "Ey en puerto 3")
+    #plt.plot(frecuencias*300,phaseMag)#, label = f"Fase del campo mágnetico") #compruebo que solo necesito un campo para mi analisis dado este caso 
+    plt.plot(frecuencias*300,[meanfase]*len(frecuencias), label = f"promedio de la fase {meanfase}")
+    plt.legend()
+    plt.title(f"Phase de los campos magneticos y electricos en los puertos $S_2$ y $S_3$")
+    plt.xlabel("Frecuancia (Ghz)")
+    plt.ylabel("Fase (Grados) ");
+    plt.savefig("Fase.png", dpi=300)
+    plt.close()
     
 
 
     # --- EXTRAEMOS Y PLOTAMOS FLUJO VS LONGITUD DE ONDA ---
     # obtenemos las frecuencias de muestreo
-    freqs = np.array(mp.get_flux_freqs(flux_monitors[0]))*300  # en GHz
+    freqs = mp.get_flux_freqs(flux_monitors[0])
 
     # recogemos los flujos de cada monitor
-    naflux =np.array(fluxtime)
-
-    flujofunete  = naflux[14-(Nlamda+1),0,:] 
-    flujos2 = naflux[14,1,:] 
-    flujos3 = naflux[14,2,:] # dato a usar en la optimización
+    flux_data = np.array([ mp.get_fluxes(fm) for fm in flux_monitors ]) # dato a usar en la optimización
 
 
     #EXTRACCIÓN DE PARÁMETROS S
 
+    # Extraemos P2, P3 y P1
+    P2 = np.array(flux_data[0])
+    P3 = np.array(flux_data[1])
+    P1= np.array(flux_data[2] ) # incidente
+
 
     # S-PARÁMETROS
-    S21 = flujos2 / flujofunete
-    S31 = flujos3 / flujofunete
+    S21 = P2 / P1
+    S31 = P3 / P1
     S11 = 0 #Asumiendo que no hay reflexión en el puerto 1 
 
     # Magnitud en dB
@@ -270,39 +293,17 @@ def ejecutar_simulacion(params):
     S31_dB = 10*np.log10(abs(S31))
     #S11_dB = 10*np.log10(np.abs(S11))
 
-    # desfase en grados
-    ang = np.arctan(S21_dB, S31_dB) * (180/np.pi)
-
-    plt.figure(figsize=(10,6))
-    plt.plot(freqs, ang, label='Diferencia de fase ∠(S12/S13)')
-    plt.plot(freqs, [90]*len(freqs), "k--" , label=' Diferencia Ideal = 90°')
-    plt.xlabel('Frecuencia (GHz)')
-    plt.ylabel('Diferencia de Fase (grados)')
-    plt.title('Diferencia de Fase entre Puertos del Híbrido en H')
-    plt.legend()
-    plt.grid()
-    plt.savefig("Desfase.png", dpi=300)
-    plt.close()
 
 
-    #  AMPLITUD
-    deltaA = np.abs(S21_dB, S31_dB)
-    plt.figure(figsize=(10,6))
-    plt.plot(freqs, deltaA, label='Relación de amplitud |S12/S13|')
-    plt.plot(freqs, [1]*len(freqs), "k--" ,label=' Relación Ideal = 1')
-    plt.xlabel('Frecuencia (GHz)')
-    plt.ylabel('Relación de Amplitud')
-    plt.title('Relación de Amplitud entre Puertos del Híbrido en H')
-    plt.legend()
-    plt.grid()
-    plt.savefig("Amplitud.png", dpi=300)
-    plt.close()
+
 #FLUJOS
 
     plt.figure(figsize=(8,6))
    
-    plt.plot(np.array(freqs)*300, S21_dB, label='Puerto salida 2')
-    plt.plot(np.array(freqs)*300, S31_dB, label='Puerto salida 3')
+    plt.plot(np.array(freqs)*300, 20*np.log10(flux_data[2]), label='Puerto 1: Incidente')
+    plt.plot(np.array(freqs)*300, 20*np.log10(flux_data[0]), label='Puerto salida 2')
+    plt.plot(np.array(freqs)*300, 20*np.log10(flux_data[1]), label='Puerto salida 3 ')
+
     plt.xlabel('Frecuencia Ghz')
     plt.ylabel('Flujo (dB)')
     plt.title('Espectro de Potencia en cada puerto')
@@ -317,9 +318,9 @@ def ejecutar_simulacion(params):
 #Flujos no dB
     plt.figure(figsize=(8,6))
    
-    plt.plot(np.array(freqs)*300, flujofunete, label='Puerto 1: Incidente')
-    plt.plot(np.array(freqs)*300, flujos2, label='Puerto salida 2')
-    plt.plot(np.array(freqs)*300, flujos3, label='Puerto salida 3 ')
+    plt.plot(np.array(freqs)*300, flux_data[2], label='Puerto 1: Incidente')
+    plt.plot(np.array(freqs)*300, flux_data[0], label='Puerto salida 2')
+    plt.plot(np.array(freqs)*300, flux_data[1], label='Puerto salida 3 ')
     plt.xlabel('Frecuencia Ghz')
     plt.ylabel('Flujo (unidad Meep)')
     plt.title('Espectro de Potencia en cada puerto')
@@ -353,7 +354,7 @@ def ejecutar_simulacion(params):
     
     print(f"parametros=(a={a}, b={b}, L={L}, d={d}, h={h}, c={c}, n={n}")
     
-    parametros = freqs, S21_dB, S31_dB, ang, deltaA
+    parametros = freqs*300, S21_dB, S31_dB
     return parametros
 
 
