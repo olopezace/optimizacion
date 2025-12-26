@@ -202,6 +202,10 @@ def ejecutar_simulacion(params):
 '''
 
 
+    flux_monitors = []
+    for reg in regions:
+        flux_monitors.append( sim.add_flux(fcentral, df, nfreq, reg) )
+
     # vista 2D de la geometria del hibrido 
     fig = plt.figure(figsize=(6,6))
     sim.plot2D(output_plane=mp.Volume(center=mp.Vector3(), size=mp.Vector3(cell_x, cell_y, 0)))
@@ -214,9 +218,7 @@ def ejecutar_simulacion(params):
 
     
 
-    flux_monitors = []
-    for reg in regions:
-        flux_monitors.append( sim.add_flux(fcentral, df, nfreq, reg) )
+  
     
 
 
