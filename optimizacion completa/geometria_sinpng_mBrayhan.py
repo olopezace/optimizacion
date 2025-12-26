@@ -286,7 +286,7 @@ def ejecutar_simulacion(params):
 
 
     #  AMPLITUD
-    deltaA = np.abs(S21_dB, S31_dB)
+    deltaA = np.abs(S21_dB/ S31_dB)
     plt.figure(figsize=(10,6))
     plt.plot(freqs, deltaA, label='Relación de amplitud |S12/S13|')
     plt.plot(freqs, [1]*len(freqs), "k--" ,label=' Relación Ideal = 1')
@@ -298,20 +298,6 @@ def ejecutar_simulacion(params):
     plt.savefig("Amplitud.png", dpi=300)
     plt.close()
 #FLUJOS
-
-    plt.figure(figsize=(8,6))
-   
-    plt.plot(np.array(freqs)*300, S21_dB, label='Puerto salida 2')
-    plt.plot(np.array(freqs)*300, S31_dB, label='Puerto salida 3')
-    plt.xlabel('Frecuencia Ghz')
-    plt.ylabel('Flujo (dB)')
-    plt.title('Espectro de Potencia en cada puerto')
-    plt.legend()
-    plt.gca()  # opcional: λ creciente a la izquierda
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig("espectrodB.png", dpi=300)
-    plt.close()
 
 
 #Flujos no dB
