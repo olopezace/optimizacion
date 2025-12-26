@@ -133,10 +133,9 @@ def ejecutar_simulacion(params):
     sim = mp.Simulation(
         cell_size=mp.Vector3(cell_x, cell_y, cell_z),
         geometry=geometry,
-        boundary_layers=[mp.PML(0.3)],
+        boundary_layers=[mp.PML(0.25)],
         sources=sources,
         resolution=resolution,
-        #symmetries=symmetries
     )
 
     """ Función para dibujar un bloque 3D """
