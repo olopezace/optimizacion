@@ -29,7 +29,6 @@ def ejecutar_simulacion(params):
     n = 8  # número de brazos del híbrido en H
     L = (n-1)*(c+h) + h # longitud total del híbrido en H
     Nlamda = int(round(L*fminima) + 1)
-    ClclosN = 15
 
     # Conversión a unidades internas de Meep (1 unit = 1 mm)
     
@@ -46,7 +45,7 @@ def ejecutar_simulacion(params):
 
     sources = [
         mp.Source(
-            mp.ContinuousSource(frequency=fcentral, fwidth = df), component=mp. Hz,size=(0, b,a) ,center=mp.Vector3(-Nlamda/(2*fminima),(b+d)/2,  0),
+            mp.ContinuousSource(frequency=fcentral, fwidth = df), component=mp.Bz,size=(0, b,a) ,center=mp.Vector3(-Nlamda/(2*fminima),(b+d)/2,  0),
         )
     ]
 
@@ -134,7 +133,7 @@ def ejecutar_simulacion(params):
     sim = mp.Simulation(
         cell_size=mp.Vector3(cell_x, cell_y, cell_z),
         geometry=geometry,
-        boundary_layers=[mp.PML(0.5)],
+        boundary_layers=[mp.PML(0.3)],
         sources=sources,
         resolution=resolution,
         #symmetries=symmetries
@@ -200,7 +199,7 @@ def ejecutar_simulacion(params):
     plt.savefig("geometria_3D.png", dpi=200)
 
     plt.close()
-
+'''
 
 
     # vista 2D de la geometria del hibrido 
@@ -213,7 +212,7 @@ def ejecutar_simulacion(params):
     plt.savefig("geometria_2D.png", dpi=200)
     plt.close()
 
-    '''
+    
 
     flux_monitors = []
     for reg in regions:
