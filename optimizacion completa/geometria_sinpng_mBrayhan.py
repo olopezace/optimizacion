@@ -75,10 +75,10 @@ def ejecutar_simulacion(params):
                 mp.Block(size = mp.Vector3( Nlamda/(fminima)+1,cell_y,cell_z), # Cubo de Metal al rededor del hibrido 
                             center = mp.Vector3(0,0,0),
                             material = mp.metal),
-                mp.Block(size=mp.Vector3( Nlamda/(fminima), b, a), # Conductos principales
+                mp.Block(size=mp.Vector3(Nlamda/(fminima)+1, b, a), # Conductos principales
                             center=mp.Vector3( 0, -(b+d)/2, 0), 
                             material=mp.air),
-                mp.Block(size=mp.Vector3( Nlamda/(fminima), b,  a),
+                mp.Block(size=mp.Vector3( Nlamda/(fminima)+1, b,  a),
                             center=mp.Vector3(0, (b+d)/2, 0),
                             material=mp.air)] + [ 
                 mp.Block(size=mp.Vector3(h, d, a), 
