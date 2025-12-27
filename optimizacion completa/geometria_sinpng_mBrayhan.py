@@ -24,7 +24,7 @@ def ejecutar_simulacion(params):
     fmaxima = fmaxima/ 300 # en milimetros
 
     fcentral  = (fminima + fmaxima)/2
-    df = np.abs(fminima - fmaxima)/2
+    df = np.abs(fminima - fmaxima)
 
     n = 8  # número de brazos del híbrido en H
     L = (n-1)*(c+h) + h # longitud total del híbrido en H
