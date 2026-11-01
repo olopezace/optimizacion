@@ -206,14 +206,14 @@ def ejecutar_simulacion(params):
         flux_monitors.append( sim.add_flux(fcentral, df, nfreq, reg) )
 
     # vista 2D de la geometria del hibrido 
-    fig = plt.figure(figsize=(6,6))
-    sim.plot2D(output_plane=mp.Volume(center=mp.Vector3(), size=mp.Vector3(cell_x, cell_y, 0)))
-    plt.title("Geometría en 'H' del híbrido en cuadratura")
-    plt.xlabel("x (mm)")
-    plt.ylabel("y (mm)")
-    plt.axis("equal")
-    plt.savefig("geometria_2D.png", dpi=200)
-    plt.close()
+    #fig = plt.figure(figsize=(6,6))
+    #sim.plot2D(output_plane=mp.Volume(center=mp.Vector3(), size=mp.Vector3(cell_x, cell_y, 0)))
+    #plt.title("Geometría en 'H' del híbrido en cuadratura")
+    #plt.xlabel("x (mm)")
+    #plt.ylabel("y (mm)")
+    #plt.axis("equal")
+    #plt.savefig("geometria_2D.png", dpi=200)
+    #plt.close()
 
     
 
@@ -234,11 +234,11 @@ def ejecutar_simulacion(params):
 
 
 
-    plt.figure(figsize=(10,10))
-    sim.plot2D(output_plane=mp.Volume(center=mp.Vector3(), size=mp.Vector3(cell_x, cell_y, 0)),fields=mp.Bz) # cambiar entre Ey y Bz para ver lso diferentes campos 
-    plt.title("Vista 2D del campo Elcectrico en su componente Ey")
-    plt.savefig("vista2Dcampoelectrico.png", dpi=200)
-    plt.close()
+    #plt.figure(figsize=(10,10))
+    #sim.plot2D(output_plane=mp.Volume(center=mp.Vector3(), size=mp.Vector3(cell_x, cell_y, 0)),fields=mp.Bz) # cambiar entre Ey y Bz para ver lso diferentes campos 
+    #plt.title("Vista 2D del campo Elcectrico en su componente Ey")
+    #plt.savefig("vista2Dcampoelectrico.png", dpi=200)
+    #plt.close()
 
     # ANÁLISIS DE LA DIFERENCIA DE FASE ENTRE LOS PUERTOS 2 Y 3
 
