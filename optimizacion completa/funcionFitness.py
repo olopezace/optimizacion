@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from geometria_sinpng_m import ejecutar_simulacion # aqui es el cambio de experimento, o bien se nombra el archivo de simulaicón de meep con  este mismo nombre o se cambia desde esete impot
+                                                   # IMportante la salida debe ser el espectro o bein las cantidades definidas en la función fitness correspondinete al experimento 
 
 def compute_penalties_from_constraints(freq, S31, S21, deltaA, bands):
     freq = np.asarray(freq)
@@ -163,7 +165,7 @@ def evaluar_disenio(x):
     """
 
     print("Evaluando diseño con parámetros:", x)
-    from geometria_sinpng import ejecutar_simulacion
+    
     freq, S21_dB, S31_dB = ejecutar_simulacion(x)
     
     
