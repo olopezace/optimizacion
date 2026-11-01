@@ -272,68 +272,70 @@ def ejecutar_simulacion(params):
 
     # desfase en grados
     ang = np.arctan(S21_dB, S31_dB) * (180/np.pi)
-
-    plt.figure(figsize=(10,6))
-    plt.plot(freqs, ang, label='Diferencia de fase ∠(S12/S13)')
-    plt.plot(freqs, [90]*len(freqs), "k--" , label=' Diferencia Ideal = 90°')
-    plt.xlabel('Frecuencia (GHz)')
-    plt.ylabel('Diferencia de Fase (grados)')
-    plt.title('Diferencia de Fase entre Puertos del Híbrido en H')
-    plt.legend()
-    plt.grid()
-    plt.savefig("Desfase.png", dpi=300)
-    plt.close()
+    
+    #descomentar lo siguiente si se quiere alguna de las graficas de desfase, amplitus y s parametro, en el orden escrito 
+    
+    #plt.figure(figsize=(10,6))
+    #plt.plot(freqs, ang, label='Diferencia de fase ∠(S12/S13)')
+    #plt.plot(freqs, [90]*len(freqs), "k--" , label=' Diferencia Ideal = 90°')
+    #plt.xlabel('Frecuencia (GHz)')
+    #plt.ylabel('Diferencia de Fase (grados)')
+    #plt.title('Diferencia de Fase entre Puertos del Híbrido en H')
+    #plt.legend()
+    #plt.grid()
+    #plt.savefig("Desfase.png", dpi=300)
+    #plt.close()
 
 
     #  AMPLITUD
-    deltaA = np.abs(S21_dB/ S31_dB)
-    plt.figure(figsize=(10,6))
-    plt.plot(freqs, deltaA, label='Relación de amplitud |S12/S13|')
-    plt.plot(freqs, [1]*len(freqs), "k--" ,label=' Relación Ideal = 1')
-    plt.xlabel('Frecuencia (GHz)')
-    plt.ylabel('Relación de Amplitud')
-    plt.title('Relación de Amplitud entre Puertos del Híbrido en H')
-    plt.legend()
-    plt.grid()
-    plt.savefig("Amplitud.png", dpi=300)
-    plt.close()
+    #deltaA = np.abs(S21_dB/ S31_dB)
+    #plt.figure(figsize=(10,6))
+    #plt.plot(freqs, deltaA, label='Relación de amplitud |S12/S13|')
+    #plt.plot(freqs, [1]*len(freqs), "k--" ,label=' Relación Ideal = 1')
+    #plt.xlabel('Frecuencia (GHz)')
+    #plt.ylabel('Relación de Amplitud')
+    #plt.title('Relación de Amplitud entre Puertos del Híbrido en H')
+    #plt.legend()
+    #plt.grid()
+    #plt.savefig("Amplitud.png", dpi=300)
+    #plt.close()
 #FLUJOS
 
 
 #Flujos no dB
-    plt.figure(figsize=(8,6))
+    #plt.figure(figsize=(8,6))
    
-    plt.plot(np.array(freqs)*300, flujofunete, label='Puerto 1: Incidente')
-    plt.plot(np.array(freqs)*300, flujos2, label='Puerto salida 2')
-    plt.plot(np.array(freqs)*300, flujos3, label='Puerto salida 3 ')
-    plt.xlabel('Frecuencia Ghz')
-    plt.ylabel('Flujo (unidad Meep)')
-    plt.title('Espectro de Potencia en cada puerto')
-    plt.legend()
-    plt.gca()  # opcional: λ creciente a la izquierda
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig("espectro.png", dpi=300)
-    plt.close()
+    #plt.plot(np.array(freqs)*300, flujofunete, label='Puerto 1: Incidente')
+    #plt.plot(np.array(freqs)*300, flujos2, label='Puerto salida 2')
+    #plt.plot(np.array(freqs)*300, flujos3, label='Puerto salida 3 ')
+    #plt.xlabel('Frecuencia Ghz')
+    #plt.ylabel('Flujo (unidad Meep)')
+    #plt.title('Espectro de Potencia en cada puerto')
+    #plt.legend()
+    #plt.gca()  # opcional: λ creciente a la izquierda
+    #plt.grid(True)
+    #plt.tight_layout()
+    #plt.savefig("espectro.png", dpi=300)
+    #plt.close()
 
 
 
 
     #Parámetros S
-    plt.figure(figsize=(8,6))
+    #plt.figure(figsize=(8,6))
 
-    plt.plot(np.array(freqs)*300, S21_dB, label='S21 (dB)')
-    plt.plot(np.array(freqs)*300, S31_dB, label='S31 (dB)')
-    plt.plot(np.array(freqs)*300, -3*np.ones_like(freqs), 'k--', label='-3 dB')
+    #plt.plot(np.array(freqs)*300, S21_dB, label='S21 (dB)')
+    #plt.plot(np.array(freqs)*300, S31_dB, label='S31 (dB)')
+    #plt.plot(np.array(freqs)*300, -3*np.ones_like(freqs), 'k--', label='-3 dB')
 
-    plt.xlabel('Frecuencia (Ghz)')
-    plt.ylabel('Parámetros de dispersión (dB)') 
-    plt.title('Parámetros S del híbrido en H')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig("sparams.png", dpi=300)
-    plt.close()
+    #plt.xlabel('Frecuencia (Ghz)')
+    #plt.ylabel('Parámetros de dispersión (dB)') 
+    #plt.title('Parámetros S del híbrido en H')
+    #plt.legend()
+    #plt.grid(True)
+    #plt.tight_layout()
+    #plt.savefig("sparams.png", dpi=300)
+    #plt.close()
 
  
     
@@ -350,5 +352,5 @@ def ejecutar_simulacion(params):
 
 
     
-parametros_de_prueba =[2.54, 1.27, 0.74, 0.2866, 0.74]
-ejecutar_simulacion(parametros_de_prueba)
+#parametros_de_prueba =[2.54, 1.27, 0.74, 0.2866, 0.74]
+#ejecutar_simulacion(parametros_de_prueba)
