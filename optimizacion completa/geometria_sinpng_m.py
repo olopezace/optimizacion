@@ -20,8 +20,8 @@ def ejecutar_simulacion(params):
     fminima = 75
     fmaxima = 110
 
-    fminima = fminima/ 300 # en milimetros
-    fmaxima = fmaxima/ 300 # en milimetros
+    fminima = fminima/ 300 # en unidades de Meep
+    fmaxima = fmaxima/ 300 # en unidades de meep
 
     fcentral  = (fminima + fmaxima)/2
     df = np.abs(fminima - fmaxima)
