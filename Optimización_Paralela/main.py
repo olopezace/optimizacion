@@ -63,8 +63,8 @@ if rank == 0:
         })
 
         # Guardar resultados
-        np.save("resultados_optimizacion.npy", resultados)
-        print("\nTodos los runs completos. Resultados guardados en resultados_optimizacion.npy")
+        np.savetxt("resultados_optimizacion.csv", resultados)
+        print("\nTodos los runs completos. Resultados guardados en resultados_optimizacion.csv")
     finally:
         # Crítico: si algo de lo de arriba lanza una excepción, esto
         # se ejecuta igual -- si no se llama, los workers quedan
