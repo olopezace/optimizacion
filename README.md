@@ -1,3 +1,23 @@
+# Comandos de inicio
+Sin ayuda de otros Nucleos
+
+python3 main.py
+
+Dentro de la carpeta optimización completa (cd /optimizacion completa).
+
+con ayuda de los demas nucleos
+
+mpirun -m (numerode nucleos) python main.py
+
+siempre instalar inatalar MEEP asi:
+
+conda create -n pmp -c conda-forge pymeep=*=mpi_mpich_*
+conda activate pmp
+
+Si quiere usar  simulaciones en paralelo usar. 
+
+mpirun -np (numerode nucleos) python main.py
+
 # Función *fitness* para el diseño del híbrido en cuadratura (ALMA Band 2+3)
 
 Este documento describe **con precisión y con ejemplos** la función *fitness* usada para optimizar un híbrido en cuadratura mediante PSO (Particle Swarm Optimization). Se aclaran las matrices y vectores utilizados en la Sección 7.5 del documento técnico, se explica el **significado de las filas y columnas** de cada matriz y se detalla **qué es exactamente la matriz (vector) _F_**. Además, se indica **dónde y cómo ajustar los pesos** en el repositorio asociado y el **valor por defecto de la ponderación de oscilaciones** (λ).
