@@ -55,8 +55,8 @@ resultados.append({
 })
 
 # Guardar resultados
-np.save("resultados_optimizacion.npy", resultados)
-print("\nTodos los runs completos. Resultados guardados en resultados_optimizacion.npy")
+np.save("resultados_optimizacion.csv", resultados)
+print("\nTodos los runs completos. Resultados guardados en resultados_optimizacion.csv")
 
 
 
