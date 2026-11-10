@@ -1,22 +1,158 @@
-# Comandos de inicio
-Sin ayuda de otros Nucleos
+# Guía de uso
 
-python3 main.py
+> Para pegar en `README.md`, reemplazando el bloque «Comandos de inicio».
+> El resto del README documenta la función *fitness* y se conserva tal cual.
 
-Dentro de la carpeta optimización completa (cd /optimizacion completa).
+## Qué hay en el repositorio
 
-con ayuda de los demas nucleos
+| Carpeta | Para qué sirve |
+|---|---|
+| `optimizacion completa/` | Optimizador secuencial. Evalúa la población de uno en uno. |
+| `Optimización_Paralela/` | Optimizador paralelo. Evalúa toda la población a la vez, una simulación por individuo. |
+| `Resultados/` | Guiones de posproceso y figuras de las corridas ya hechas. |
+| `DE/` | Evolución diferencial clásica y su validación sobre funciones analíticas. |
+| `Función_fitness/` | Cuaderno que ejercita la *fitness* sobre espectros sintéticos, sin MEEP. |
+| `Intrucciones/` | Instalación en Windows mediante WSL. |
 
-mpirun -m (numerode nucleos) python main.py
+Los cuatro archivos de cada carpeta de optimización son intercambiables entre sí:
+`main.py` fija los parámetros y lanza; `SHADE.py` es el algoritmo; `funcionFitness.py`
+traduce la respuesta en un escalar; `geometria_sinpng_*.py` es el modelo de MEEP.
 
-siempre instalar inatalar MEEP asi:
+## Instalación
 
+```bash
+# (solo en Windows) subsistema Linux
+wsl --install
+
+# entorno con MEEP paralelo
 conda create -n pmp -c conda-forge pymeep=*=mpi_mpich_*
 conda activate pmp
 
-Si quiere usar  simulaciones en paralelo usar. 
+# comprobación: no debe dar error
+python -c "import meep; print(meep.__version__)"
+```
 
-mpirun -np (numerode nucleos) python main.py
+## Las dos maneras de usar los núcleos
+
+Es la distinción más importante de esta guía, porque el mismo `mpirun` hace dos cosas
+distintas según la carpeta en la que se ejecute.
+
+**Descomposición de dominio** (`optimizacion completa/`). Los *N* procesos se reparten
+la celda computacional y cooperan en **una sola** simulación. Acorta cada evaluación,
+pero la población se sigue recorriendo de una en una.
+
+**Paralelismo por tareas** (`Optimización_Paralela/`). Cada proceso ejecuta **una
+simulación completa e independiente**, una por individuo de la población. No acorta
+cada evaluación —al contrario, cada una corre en un solo núcleo y tarda más— pero
+resuelve la generación entera de una vez.
+
+Para una corrida de optimización real conviene el segundo. El primero es útil para
+depurar, para evaluar un diseño suelto o cuando la población es más pequeña que el
+número de núcleos.
+
+## Optimizador secuencial
+
+```bash
+cd "optimizacion completa"
+python main.py                 # todo en un núcleo
+mpirun -np 16 python main.py   # una simulación repartida entre 16 núcleos
+```
+
+Parámetros, todos en `main.py`: `lower` y `upper` (límites del espacio de búsqueda),
+`pop_size`, `maxIter`, `num_runs`, y `H` y `p` en la llamada a `SHADE`.
+Salida: `resultados_optimizacion.csv` con la mejor solución de cada corrida.
+
+> **Antes de usarlo, lea «Problemas conocidos» al final.** Esta carpeta no se ejecuta
+> tal cual en la versión actual.
+
+## Optimizador paralelo
+
+```bash
+cd "Optimización_Paralela"
+mpirun -np 24 python -m mpi4py main.py
+```
+
+Tres detalles que importan:
+
+- **`-m mpi4py` no es opcional.** Instala un manejador que aborta el trabajo MPI
+  completo si un proceso muere. Sin él, la muerte de un proceso deja a los demás
+  esperando y la corrida se cuelga en lugar de fallar.
+- **`-np` debe coincidir con `pop_size`.** El optimizador no avanza hasta que toda la
+  generación está evaluada, de modo que una población que no sea múltiplo del número
+  de procesos deja parte de la máquina ociosa en la última oleada. Con `pop_size = 24`,
+  use `-np 24`.
+- **No pase del número de núcleos *físicos*.** Los núcleos lógicos de *Hyper-Threading*
+  no añaden ancho de banda de memoria, que es lo que limita a FDTD. Compruébelo con
+  `lscpu`.
+
+Salidas:
+
+- `particulas_optimizacion.csv` — una fila por evaluación, con los cinco parámetros y
+  el fitness. Se escribe incrementalmente, de modo que la corrida puede inspeccionarse
+  mientras avanza y sobrevive a una interrupción. Es además el conjunto de datos para
+  trabajo posterior.
+- `resultados_optimizacion.csv` — resumen de cada corrida completa.
+
+## Parámetros que se tocan con más frecuencia
+
+| Qué se cambia | Dónde | Nota |
+|---|---|---|
+| Límites del espacio de búsqueda | `lower`, `upper` en `main.py` | Los vectores se recortan a esta caja. |
+| Tamaño de población e iteraciones | `pop_size`, `maxIter` en `main.py` | El número de simulaciones es `pop_size * (1 + maxIter)`. |
+| Comportamiento de SHADE | `H`, `p` en la llamada a `SHADE` | El conjunto de élite tiene un piso de dos individuos, así que `p` por debajo de `2/pop_size` no cambia nada. |
+| Banda de frecuencias | `fminima`, `fmaxima` en el guion de geometría | Actualice también `bands` en `funcionFitness.py`. |
+| Resolución espacial | `resolution` en el guion de geometría | Es lo que más pesa en el tiempo de cálculo. |
+| Pesos y λ | `W`, `lambda_reg` en `funcionFitness.py` | Los pesos se normalizan: importan las proporciones. |
+
+## Cuánto tarda
+
+Medido sobre un servidor de 24 núcleos físicos y 64 GB, con una malla de unos
+17 millones de puntos a resolución 40:
+
+| Esquema | Tiempo por evaluación |
+|---|---|
+| Un solo núcleo | ≈ 36 min |
+| Descomposición de dominio, 16 procesos | ≈ 12 min |
+| Paralelismo por tareas, 24 procesos | ≈ 199 min de reloj por generación de 24, es decir ≈ 8.3 min amortizados |
+
+El rendimiento del esquema por tareas se satura en torno a 16 simulaciones
+concurrentes: por encima de eso los procesos se estorban compitiendo por el ancho de
+banda de memoria. Para escalar más hacen falta más nodos, no más núcleos.
+
+## Problemas conocidos
+
+**`optimizacion completa/` no se ejecuta en la versión actual.** Son cuatro arreglos
+pequeños, todos ya resueltos en `Optimización_Paralela/`, de donde pueden copiarse:
+
+1. `geometria_sinpng_m.py:344` devuelve `deltaA`, cuya asignación está comentada en la
+   línea 291 → `NameError`.
+2. Ese mismo `return` entrega cinco valores, pero `funcionFitness.py:169` desempaqueta
+   tres → `ValueError`.
+3. `funcionFitness.py:100` usa `np.trapz`, retirado en NumPy 2.0 → `AttributeError`.
+   Sustitúyalo por `np.trapezoid`.
+4. `main.py` guarda con `np.savetxt` una lista de diccionarios, que esa función no sabe
+   escribir → `TypeError`. Use `np.save` y la extensión `.npy`, como hace la versión
+   paralela.
+
+**La partición en regiones no coincide con la banda simulada.** `funcionFitness.py`
+define `bands = [(65,70), (71,110), (111,115)]`, heredado del caso completo de la banda
+2+3 de ALMA, mientras que la simulación va de 75 a 110 GHz. Las regiones baja y alta
+quedan sin puntos de frecuencia: su contribución es nula pero su penalización es
+máxima. Conviene redefinirlas dentro de la banda que se simule.
+
+**La métrica de oscilación mide otra cosa.** Se calcula como el valor absoluto de la
+integral de la segunda derivada, que por el teorema fundamental del cálculo se reduce a
+la diferencia de pendientes entre los extremos del intervalo. Dos curvas con las mismas
+pendientes en los extremos reciben el mismo valor aunque una oscile y la otra sea plana.
+Integrar el valor absoluto de la segunda derivada sí las distingue. Como `λ = 0.008`
+reduce mucho el peso de esta componente, el efecto sobre los diseños es pequeño.
+
+**El criterio de convergencia no aplica a esta *fitness*.** La variable que registra la
+iteración del mejor individuo compara contra una tolerancia positiva, criterio
+apropiado para las funciones de prueba de mínimo nulo con que se validó el algoritmo.
+Como esta *fitness* es negativa por construcción, se satisface desde la primera
+iteración. Para saber cuándo se estabilizó el mejor individuo, tome el mínimo del
+historial.
 
 # Función *fitness* para el diseño del híbrido en cuadratura (ALMA Band 2+3)
 
