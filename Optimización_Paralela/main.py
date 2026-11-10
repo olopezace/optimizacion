@@ -21,8 +21,8 @@ lower = [2.0, 1.0, 0.5, 0.2,0.5]   # [a,b, d, h, c]
 upper = [3.0, 1.5, 1.2, 0.5,1.2 ]
 
 # Control de corridas completas
-num_runs = 1          # cuántas veces repetir toda la optimización 
-pop_size = 24
+num_runs = 1    # cuántas veces repetir toda la optimización 
+pop_size = 24   # numero de puntos en el espacio de parametros. La misma cantidad de nucleos a usar.
 maxIter = 100
 
 resultados = []
