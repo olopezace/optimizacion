@@ -21,7 +21,7 @@ upper = [3.0, 1.5, 1.2, 0.5,1.2 ]
 
 # Control de corridas completas
 num_runs = 1          # cuántas veces repetir toda la optimización 
-pop_size = 10
+pop_size = 10         # Numero de puntos en el espacio de parámetros 
 maxIter = 4
 
 resultados = []
